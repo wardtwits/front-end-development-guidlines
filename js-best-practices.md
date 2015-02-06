@@ -14,7 +14,7 @@ This document’s primary motivation is two-fold 1) code consistency and 2) best
 * **Variable & Function Naming:** All variables and functions should use camelCase.  Use meaningful, unique names.  All Boolean variables should start with an ‘is’. All functions should start with a verb. jQuery objects should begin with a dollar sign ($). 
 > Do not use _ (underbar) as the first or last character of a name. It is sometimes intended to indicate privacy, but it does not actually provide privacy. - Douglas Crockford
 
-  ```
+  ```js
   var isValid = (test.value >= 4 && test.success);
   function updateSettings () { … }
   var $accountForm = $(‘form#account’);
@@ -30,8 +30,8 @@ Using a single var statement at the top of your functions is a useful pattern to
 * Helps you remember to declare variables and therefore minimize globals
 * Is less code (to type and to transfer over the wire)
 
-'''js
-sub-optimal - it looks like shorter code, but performance costs add up quickly
+```js
+// sub-optimal - it looks like shorter code, but performance costs add up quickly
 for (var i < 0; i < myDogs.length; i++) {
     $('div.dogList').css('background','red');
     $('div.dogList').append('<h1'>+myDogs[i]+'</h1>');
@@ -40,14 +40,14 @@ for (var i < 0; i < myDogs.length; i++) {
 // fast, efficient, maintainable
 var i,                                      // don't declare i within the loop
     tempList ='',
-    myDogs = ['spot','stinky'],    
+    myDogs = ['buster','gob','michael'],    
     $dogList = $('div.dogList');            // re-use variables
  
 for (i = myDogs.length; i--;) {             // speed improvement when possible
     tempList += '<h1>'+myDogs[i]+'</h1>';   // DOM manipulation is expensive, build your data, then append it
 }
 $dogList.css('background','red').append(tempList);
-'''
+```
 
 ###Writing Comments
 You have to comment your code, even if it’s unlikely that someone other than you will ever touch it.  You shouldn’t go overboard commenting the obvious: every single variable or every line.  But you usually need to document all functions, their arguments and return values, and also any interesting or unusual algorithm or technique. 
@@ -57,7 +57,7 @@ Think of comments as hints to future readers; the readers need to understand wha
 Just like good comments, code documentation can be invaluable to other developers (and you) when reading/debugging your code later.  Documentation can also be leveraged by tools such as JSDocs to create API documentation.
 Basic format:
  
- '''js
+```js
  /**
  *
  * Multiplies two numbers
@@ -71,7 +71,7 @@ Basic format:
 multi: function (a, b) {
     return a * b;
 }
- '''
+```
 
 Tag definitions (see JSDocs for more):
 * @namespace – The global reference that contains your object
@@ -89,7 +89,7 @@ JavaScript implicitly typecasts variables when you compare them.  That’s why c
 * *false == 0 or “” == 0  return true.*
 To avoid confusion caused by the implied typecasting, always use the === and !== operators that check both the values and the type of the expressions you compare.  *The **only** exception is when checking for undefined and null by way of null.*
 
-'''js
+```js
 // incorrect
 var zero = 0;
 if (zero == false) // this will return true
@@ -99,7 +99,7 @@ if (zero === false) // this will return false
  
 // Check for both undefined and null values, for some important reason.
 undefOrNull == null;
-'''
+```
 
 ###JavaScript debugging tools
 
