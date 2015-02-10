@@ -116,7 +116,7 @@ Use .js- prefixed class selectors.  This prevents confusion between classes need
 ```
 
 ###Scope and this
-Use .bind(this) _(if you only support newer browsers - IE9+ - otherwise underscore is a good option _.bind)_ to pass scope to functions if possible.  Use var _this = this; if needed but avoid using __self__ as this could be referencing the window and adds confusion.
+Use .bind(this) _(if you only support newer browsers - IE9+ - otherwise underscore is a good option _.bind)_ to pass scope to functions when possible.  Use var \_self = this; if needed but avoid using __self__ as this could be referencing the window and adds confusion.
 
 ```js
   someMethod: function(data) {
