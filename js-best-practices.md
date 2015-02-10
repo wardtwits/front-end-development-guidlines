@@ -18,6 +18,15 @@ This document’s primary motivation is two-fold 1) code consistency and 2) best
   var isValid = (test.value >= 4 && test.success);    // be descriptive in the variables purpose
   function updateSettings () { … }
   var $accountForm = $(‘form#account’);               // jQuery object var
+
+
+  // From the Google Closure Library Style Guide
+  functionNamesLikeThis;
+  variableNamesLikeThis;
+  ConstructorNamesLikeThis;
+  EnumNamesLikeThis;
+  methodNamesLikeThis;
+  SYMBOLIC_CONSTANTS_LIKE_THIS;
   ```
   
 * **Reusability:** Strive to create functions which can be generalized, take parameters, and return values. This allows for substantial code reuse and, when combined with includes or external scripts, can reduce the overhead when scripts need to change.  For example, instead of hard-coding a pop-window with window size, options, and url, consider creating a function which takes size, url, and options as variables.
@@ -83,6 +92,33 @@ Tag definitions (see JSDocs for more):
 ###Variable Hoisting
 JavaScript enables you to have multiple var statements anywhere in a function, and they all act as if the variables were declared at the top of the function.  This behavior is known as hoisting.  This can lead to logic errors when you use a variable and then you declare it further in the function.  For JavaScript, as long as a variable is in the same scope (same function), it’s considered declared, even when it’s used before the var declaration.  
 
+```js
+// Named function expressions hoist the variable name, not the function name or the function body
+function example() {
+  console.log(named); // => undefined
+
+  named(); // => TypeError named is not a function
+
+  superPower(); // => ReferenceError superPower is not defined
+
+  var named = function superPower() {
+    console.log('Flying');
+  };
+}
+
+// the same is true when the function name
+// is the same as the variable name.
+function example() {
+  console.log(named); // => undefined
+
+  named(); // => TypeError named is not a function
+
+  var named = function named() {
+    console.log('named');
+  }
+}
+
+```
 
 ###Avoid Implied Typecasting
 JavaScript implicitly typecasts variables when you compare them.  That’s why comparisons such as:
@@ -101,11 +137,92 @@ if (zero === false) // this will return false
 undefOrNull == null;
 ```
 
+###Objects
+* Use the literal syntax for object creation.
+
+```js
+// yuck
+var item = new Object();
+
+// good
+var item = {};
+```
+
+* Don't use [reserved words](http://es5.github.io/#x7.6.1) as keys. It won't work in IE8 and its a readability issue.
+
+```js
+// bad
+var superman = {
+  default: { clark: 'kent' },
+  private: true
+};
+
+// good
+var superman = {
+  defaults: { clark: 'kent' },
+  hidden: true
+};
+```
+
+* Use readable synonyms in place of reserved words.
+
+```js
+// bad
+var superman = {
+  class: 'alien'
+};
+
+// you make kittens cry
+var superman = {
+  klass: 'alien'
+};
+
+// good
+var superman = {
+  type: 'alien'
+};
+```
+
+###Accessors
+It's okay to create get() and set() functions, but be consistent.
+
+```js
+function Jedi(options) {
+  options || (options = {});
+  var lightsaber = options.lightsaber || 'blue';
+  this.set('lightsaber', lightsaber);
+}
+
+Jedi.prototype.set = function(key, val) {
+  this[key] = val;
+};
+
+Jedi.prototype.get = function(key) {
+  return this[key];
+};
+```
+
+###Properties
+Use dot notation when accessing properties, and subscript notation [] when accessing properties with a variable.
+
+```js
+var bananaStand = {
+  money: true
+};
+
+function getProp(prop) {
+  return bananaStand[prop];
+}
+
+var hasMoney = getProp('money');
+```
+
 ###Strings
 Use single quotes '' over double quotes for strings.  This will help you avoid confusion when including HTML (which should always use double quotes).
 
 ```js
   var myOutput = '<div id="properHTML">this is correct</div>';
+  var fullName = 'Bob ' + this.lastName;
 ```
 
 ###JavaScript hooks
@@ -115,8 +232,31 @@ Use .js- prefixed class selectors.  This prevents confusion between classes need
   <div class="update js-update-content">Some updated text</div>
 ```
 
+###Coerced Types
+Given this HTML:
+
+```html
+  <input type="text" id="foo" value="1">
+```
+```js
+  // we declare foo as a type=number
+  var foo = 0;
+
+  // later we update foo with a new value from our input
+  foo = $('.foo').value;
+
+  // our foo type is now a string and this means our doThis() will never run
+  if (foo === 1) { 
+    doThis();
+  }
+
+  // We can preempt issues like this by using smart coercion with unary + or - operators:
+  foo = +$('.foo').value();
+
+```
+
 ###Scope and this
-Use .bind(this) _(if you only support newer browsers - IE9+ - otherwise underscore is a good option _.bind)_ to pass scope to functions when possible.  Use var \_self = this; if needed but avoid using __self__ as this could be referencing the window and adds confusion.
+Use .bind(this) _(if you only support newer browsers - IE9+ - otherwise underscore's _.bind or jQuery proxy are good options)_ to pass scope to functions when possible.  Use var \_self = this; (or better yet something __meaningful__) if needed but avoid using __var self = this__ as __self__ could be referencing the window and adds confusion.
 
 ```js
   someMethod: function(data) {
@@ -144,9 +284,83 @@ Use .bind(this) _(if you only support newer browsers - IE9+ - otherwise undersco
   BindCat.prototype.meow = function() {
     alert(this.name + " : meow!")
   }
+
+  // eg. jQuery.proxy
+  function Device( opts ) {
+     this.value = null;
+     stream.read( opts.path, jQuery.proxy(function( data ) {
+     this.value = data;
+   }, this) );
+   
+   setInterval( jQuery.proxy(function() {
+     this.emit("event");
+   }, this), opts.freq || 100 );
+  }  
 ```
 
-###Promises
+###Events
+When attaching data payloads to events (whether DOM events or something more proprietary like Backbone events), pass a hash instead of a raw value. This allows a subsequent contributor to add more data to the event payload without finding and updating every handler for the event. For example, instead of:
+
+```js
+// bad
+$(this).trigger('listingUpdated', listing.id);
+
+...
+
+$(this).on('listingUpdated', function(e, listingId) {
+  // do something with listingId
+});
+```
+```js
+// good
+$(this).trigger('listingUpdated', { listingId : listing.id });
+
+...
+
+$(this).on('listingUpdated', function(e, data) {
+  // do something with data.listingId
+});
+```
+
+###Whitespace
+Use indentation when making long method chains. Use a leading dot, which emphasizes that the line is a method call, not a new statement.
+
+```js
+// bad
+$('#items').find('.selected').highlight().end().find('.open').updateCount();
+
+// bad
+$('#items').
+  find('selected').
+    highlight().
+    end().
+  find('.open').
+    updateCount();
+
+// good
+$('#items')
+  .find('.selected')
+    .highlight()
+    .end()
+  .find('.open')
+    .updateCount();
+
+// bad
+var leds = stage.selectAll('.led').data(data).enter().append('svg:svg').class('led', true)
+    .attr('width',  (radius + margin) * 2).append('svg:g')
+    .attr('transform', 'translate(' + (radius + margin) + ',' + (radius + margin) + ')')
+    .call(tron.led);
+
+// good
+var leds = stage.selectAll('.led')
+    .data(data)
+  .enter().append('svg:svg')
+    .class('led', true)
+    .attr('width',  (radius + margin) * 2)
+  .append('svg:g')
+    .attr('transform', 'translate(' + (radius + margin) + ',' + (radius + margin) + ')')
+    .call(tron.led);
+```
 
 
 ###JavaScript debugging tools
