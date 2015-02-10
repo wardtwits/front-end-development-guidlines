@@ -15,9 +15,9 @@ This document’s primary motivation is two-fold 1) code consistency and 2) best
 > Do not use _ (underbar) as the first or last character of a name. It is sometimes intended to indicate privacy, but it does not actually provide privacy. - Douglas Crockford
 
   ```js
-  var isValid = (test.value >= 4 && test.success);
+  var isValid = (test.value >= 4 && test.success);    // be descriptive in the variables purpose
   function updateSettings () { … }
-  var $accountForm = $(‘form#account’);
+  var $accountForm = $(‘form#account’);               // jQuery object var
   ```
   
 * **Reusability:** Strive to create functions which can be generalized, take parameters, and return values. This allows for substantial code reuse and, when combined with includes or external scripts, can reduce the overhead when scripts need to change.  For example, instead of hard-coding a pop-window with window size, options, and url, consider creating a function which takes size, url, and options as variables.
@@ -41,7 +41,7 @@ for (var i < 0; i < myDogs.length; i++) {
 var i,                                      // don't declare i within the loop
     tempList ='',
     myDogs = ['buster','gob','michael'],    
-    $dogList = $('div.dogList');            // re-use variables
+    $dogList = $('div.dogList');            // cache jQuery lookups / re-use variables
  
 for (i = myDogs.length; i--;) {             // speed improvement when possible
     tempList += '<h1>'+myDogs[i]+'</h1>';   // DOM manipulation is expensive, build your data, then append it
@@ -100,6 +100,54 @@ if (zero === false) // this will return false
 // Check for both undefined and null values, for some important reason.
 undefOrNull == null;
 ```
+
+###Strings
+Use single quotes '' over double quotes for strings.  This will help you avoid confusion when including HTML (which should always use double quotes).
+
+```js
+  var myOutput = '<div id="properHTML">this is correct</div>';
+```
+
+###JavaScript hooks
+Use .js- prefixed class selectors.  This prevents confusion between classes needed for design and ones used to reference the DOM from js.
+
+```html
+  <div class="update js-update-content">Some updated text</div>
+```
+
+###Scope and this
+Use .bind(this) _(if you only support newer browsers - IE9+ - otherwise underscore is a good option _.bind)_ to pass scope to functions if possible.  Use var _this = this; if needed but avoid using __self__ as this could be referencing the window and adds confusion.
+
+```js
+  someMethod: function(data) {
+    this.saveMyUpdate(data)
+      .then(function(data){
+        this.collection.add(data);
+        this.showSavedNotification();
+      }.bind(this));
+  }
+
+  var myUpdates = updates.filter(function(update){
+    return update.type === this.getCurrentType();
+  }.bind(this));
+
+
+  // underscore example
+  function BindCat() {
+    this.name = "Alfonso"
+  }
+
+  BindCat.prototype.meowLater = function() {
+    window.setTimeout(_.bind(this.meow, this), 1000)
+  }
+
+  BindCat.prototype.meow = function() {
+    alert(this.name + " : meow!")
+  }
+```
+
+###Promises
+
 
 ###JavaScript debugging tools
 
