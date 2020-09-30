@@ -1,9 +1,12 @@
 # JavaScript coding standards / best practices
 
 #####Overview
-This document’s primary motivation is two-fold 1) code consistency and 2) best practices.  By maintaining consistency in coding styles and conventions, we can ease the burden of code maintenance, and mitigate risk of breakage in the future. By adhering to best practices, we ensure optimized page loading, performance and maintainable code.
+This document’s primary motivation is two-fold :
+1) code consistency 
+2) best practices.  
+By maintaining consistency in coding styles and conventions, we can ease the burden of code maintenance, and mitigate risk of breakage in the future. By adhering to best practices, we ensure optimized page loading, performance and maintainable code.
 
-#####Pillars of Front-end Development
+#####Pillars of Front-end Development:
 1. Separation of presentation, content, and behavior (no inline JavaScript / CSS)
 2. Re-use variables and functions as much as possible
 
